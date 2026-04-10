@@ -14,16 +14,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -32,20 +32,30 @@ jobs:
         id: tag
         run: echo "TAG=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
-      - name: Build and export
-        uses: docker/build-push-action@v6
+      - name: Build and push amd64
+        uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          push: false
-          outputs: type=oci,dest=/tmp/ubuntu-image.tar
-          tags: |
-            joelkim/ubuntu:${{ steps.tag.outputs.TAG }}
-            joelkim/ubuntu:latest
+          platforms: linux/amd64
+          push: true
+          tags: joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-amd64
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Build and push arm64
+        uses: docker/build-push-action@v7
         with:
-          name: ubuntu-image-${{ steps.tag.outputs.TAG }}
-          path: /tmp/ubuntu-image.tar
-          retention-days: 3
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-arm64
+
+      - name: Create and push multi-arch manifests
+        run: |
+          docker buildx imagetools create \
+            -t joelkim/ubuntu:${{ steps.tag.outputs.TAG }} \
+            joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-amd64 \
+            joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-arm64
+
+          docker buildx imagetools create \
+            -t joelkim/ubuntu:latest \
+            joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-amd64 \
+            joelkim/ubuntu:${{ steps.tag.outputs.TAG }}-arm64
