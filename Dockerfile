@@ -35,6 +35,7 @@ RUN apt-get \
   gdb \
   git \
   git-lfs \
+  gnupg \
   htop \
   info \
   iproute2 \
@@ -66,9 +67,10 @@ RUN apt-get \
   netcat-openbsd \
   network-manager \
   openjdk-17-jdk \
-  openssl \
   openssh-server \
+  openssl \
   pkgconf \
+  postgresql-client \
   psmisc \
   python3 \
   python3-pip \
@@ -121,7 +123,19 @@ ENV LC_ALL=C.UTF-8
 ENV LANGUAGE=ko_KR.UTF-8
 ENV LANG=ko_KR.UTF-8
 
-# quarto 설치
+# kubectl 및 helm 설치
+ENV KUBECTL_K8S_VERSION="v1.32"
+RUN \
+  ARCH=$(dpkg --print-architecture) && \
+  K8S_MINOR=${KUBECTL_K8S_VERSION#v} && \
+  KUBECTL_LATEST=$(curl -fsSL "https://dl.k8s.io/release/stable-${K8S_MINOR}.txt") && \
+  curl -fsSL "https://dl.k8s.io/release/${KUBECTL_LATEST}/bin/linux/${ARCH}/kubectl" \
+    -o /usr/local/bin/kubectl && \
+  chmod +x /usr/local/bin/kubectl && \
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
+    | HELM_INSTALL_DIR=/usr/local/bin USE_SUDO=false bash
+
+    # quarto 설치
 ENV QUARTO_VERSION="1.9.36"
 RUN \
   if [ "$TARGETARCH" = "amd64" ]; then \
@@ -210,6 +224,7 @@ RUN uv pip install --python ${MINIFORGE_INSTALL_DIR}/bin/python --no-cache-dir \
   langchain \
   langgraph \
   mypy \
+  ollama \
   pandas \
   poetry \
   polars \
