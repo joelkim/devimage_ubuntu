@@ -1,0 +1,30 @@
+{
+  "configurations": [
+    {
+      "args": [],
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "name": "C 파일 빌드 및 디버그 (인수 없음)",
+      "preLaunchTask": "make clean and target",
+      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "request": "launch",
+      "setupCommands": [
+        {
+          "description": "enable pretty printing",
+          "ignoreFailures": true,
+          "text": "-enable-pretty-printing"
+        },
+        {
+          "description": "ignore SIGPIPE",
+          "ignoreFailures": true,
+          "text": "handle SIGPIPE nostop noprint pass"
+        }
+      ],
+      "stopAtEntry": false,
+      "type": "cppdbg"
+    }
+  ],
+  "version": "0.2.0"
+}

@@ -1,0 +1,34 @@
+{
+  "tasks": [
+    {
+      "args": ["clean", "2>/dev/null", "||", "true"],
+      "command": "make",
+      "detail": "make clean 실행",
+      "label": "make clean",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "type": "shell"
+    },
+    {
+      "args": ["${fileBasenameNoExtension}"],
+      "command": "make",
+      "detail": "make '타겟이름' 실행",
+      "label": "make target",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "type": "shell"
+    },
+    {
+      "dependsOn": ["make clean", "make target"],
+      "detail": "make clean and target 실행",
+      "label": "make clean and target",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "type": "shell"
+    }
+  ],
+  "version": "2.0.0"
+}

@@ -1,0 +1,25 @@
+{
+  "files.associations": {
+    "*.h": "cpp",
+    "*.html": "jinja-html",
+    "*.sql": "jinja-sql",
+    "*.yml": "jinja-yaml"
+  },
+  "java.configuration.runtimes": [
+    {
+      "default": true,
+      "name": "JavaSE-17",
+      "path": "/usr/lib/jvm/java-17-openjdk"
+    }
+  ],
+  "java.jdt.ls.java.home": "/usr/lib/jvm/java-17-openjdk",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "args": [
+        "-l"
+      ],
+      "icon": "terminal-bash",
+      "path": "bash"
+    }
+  }
+}
