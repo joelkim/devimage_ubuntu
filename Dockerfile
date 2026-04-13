@@ -213,29 +213,43 @@ ENV PATH="${MINIFORGE_INSTALL_DIR}/bin:${PATH}"
 # uv를 이용해 miniforge 환경에 패키지 설치
 RUN uv pip install --python ${MINIFORGE_INSTALL_DIR}/bin/python --no-cache-dir \
   aiohttp \
+  autogenstudio \
   bash_kernel \
+  chromadb \
   duckdb-engine \
   fastapi \
   fastmcp \
+  griffe \
+  haystack-ai \
   ipykernel \
   jsonschema \
   jupysql \
   jupyterlab \
   langchain \
   langgraph \
+  litellm \
+  llama-index \
+  mcp \
   mypy \
   ollama \
+  openai-agents \
   pandas \
   poetry \
   polars \
   pre-commit \
-  pydantic \
   psycopg2-binary \
+  pydantic \
   pytest \
+  python-dotenv \
   pyyaml \
   requests \
+  rich \
   ruff \
+  scikit-learn \
   sqlalchemy \
+  streamlit \
+  tiktoken \
+  typer \
   websockets \
   && echo done
 
