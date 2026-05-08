@@ -29,6 +29,7 @@ RUN apt-get \
   curl \
   dnsutils \
   dos2unix \
+  doxygen \
   fdisk \
   file \
   flex \
@@ -36,6 +37,7 @@ RUN apt-get \
   git \
   git-lfs \
   gnupg \
+  graphviz \
   htop \
   info \
   iproute2 \
@@ -124,19 +126,18 @@ ENV LANGUAGE=ko_KR.UTF-8
 ENV LANG=ko_KR.UTF-8
 
 # kubectl 및 helm 설치
-ENV KUBECTL_K8S_VERSION="v1.32"
+# https://dl.k8s.io/release/stable.txt
+ENV KUBECTL_VERSION="v1.36.0"
 RUN \
   ARCH=$(dpkg --print-architecture) && \
-  K8S_MINOR=${KUBECTL_K8S_VERSION#v} && \
-  KUBECTL_LATEST=$(curl -fsSL "https://dl.k8s.io/release/stable-${K8S_MINOR}.txt") && \
-  curl -fsSL "https://dl.k8s.io/release/${KUBECTL_LATEST}/bin/linux/${ARCH}/kubectl" \
+  curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" \
     -o /usr/local/bin/kubectl && \
   chmod +x /usr/local/bin/kubectl && \
   curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 \
     | HELM_INSTALL_DIR=/usr/local/bin USE_SUDO=false bash
 
     # quarto 설치
-ENV QUARTO_VERSION="1.9.36"
+ENV QUARTO_VERSION="1.9.37"
 RUN \
   if [ "$TARGETARCH" = "amd64" ]; then \
     QUARTO_ARCH="amd64"; \
@@ -229,8 +230,10 @@ RUN uv pip install --python ${MINIFORGE_INSTALL_DIR}/bin/python --no-cache-dir \
   langgraph \
   litellm \
   llama-index \
+  lxml \
   mcp \
   mypy \
+  networkx \
   ollama \
   openai-agents \
   pandas \
