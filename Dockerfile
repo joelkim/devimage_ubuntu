@@ -182,6 +182,7 @@ RUN mkdir -p /home/${USER}/.ssh && \
     cp /home/${USER}/.ssh/id_ed25519 /etc/ssh/container_id_ed25519
 
 EXPOSE 22
+EXPOSE 8080
 
 WORKDIR ${HOME}
 USER ${USER}
@@ -211,52 +212,26 @@ RUN chmod -R 755 ${MINIFORGE_INSTALL_DIR}
 # Miniforge PATH 설정
 ENV PATH="${MINIFORGE_INSTALL_DIR}/bin:${PATH}"
 
+# 파이썬 패키지 목록 복사 (호스트의 requirements.txt 사용)
+COPY requirements.txt /tmp/requirements.txt
+
 # uv를 이용해 miniforge 환경에 패키지 설치
 RUN uv pip install --python ${MINIFORGE_INSTALL_DIR}/bin/python --no-cache-dir \
-  aiohttp \
-  autogenstudio \
-  bash_kernel \
-  chromadb \
-  duckdb-engine \
-  fastapi \
-  fastmcp \
-  griffe \
-  haystack-ai \
-  ipykernel \
-  jsonschema \
-  jupysql \
-  jupyterlab \
-  langchain \
-  langgraph \
-  litellm \
-  llama-index \
-  lxml \
-  mcp \
-  mypy \
-  networkx \
-  ollama \
-  openai-agents \
-  pandas \
-  poetry \
-  polars \
-  pre-commit \
-  psycopg2-binary \
-  pydantic \
-  pytest \
-  python-dotenv \
-  pyyaml \
-  requests \
-  rich \
-  ruff \
-  scikit-learn \
-  sqlalchemy \
-  streamlit \
-  tiktoken \
-  typer \
-  websockets \
-  && echo done
+  -r /tmp/requirements.txt
 
 RUN python -m bash_kernel.install
+
+# PyPI 서빙용 휠 디렉토리 준비 및 패키지 다운로드 (의존성 포함)
+ENV PYPI_PACKAGES_DIR=/srv/pypi/packages
+RUN sudo mkdir -p ${PYPI_PACKAGES_DIR} && sudo chown ${USER}:${USER} /srv/pypi
+RUN uv pip download --python ${MINIFORGE_INSTALL_DIR}/bin/python \
+      -d ${PYPI_PACKAGES_DIR} \
+      -r /tmp/requirements.txt
+
+# pypiserver 설치 (서빙 전용 venv 로 사용자 환경과 분리)
+RUN sudo mkdir -p /opt/pypiserver && sudo chown ${USER}:${USER} /opt/pypiserver && \
+    uv venv /opt/pypiserver && \
+    /opt/pypiserver/bin/python -m pip install --no-cache-dir "pypiserver[passlib]"
 
 # nvm 및 Node.js LTS 설치
 ENV NVM_DIR="${HOME}/.nvm"
@@ -380,6 +355,11 @@ RUN \
   else \
     echo "CodeLLDB extension not present in VSCODE_EXTENSIONS. Skip platform preinstall."; \
   fi
+
+# PyPI 서버 수동 기동 헬퍼: 컨테이너 안에서 `pypi-serve &` 로 실행
+RUN printf '#!/bin/bash\nexec /opt/pypiserver/bin/pypi-server run -p 8080 -i 0.0.0.0 -a . -P . %s "$@"\n' "${PYPI_PACKAGES_DIR}" \
+    | sudo tee /usr/local/bin/pypi-serve > /dev/null \
+    && sudo chmod +x /usr/local/bin/pypi-serve
 
 ENTRYPOINT ["tini", "--"]
 USER root
