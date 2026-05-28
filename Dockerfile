@@ -127,7 +127,7 @@ ENV LANG=ko_KR.UTF-8
 
 # kubectl 및 helm 설치
 # https://dl.k8s.io/release/stable.txt
-ENV KUBECTL_VERSION="v1.36.0"
+ENV KUBECTL_VERSION="v1.36.1"
 RUN \
   ARCH=$(dpkg --print-architecture) && \
   curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" \
@@ -137,7 +137,7 @@ RUN \
     | HELM_INSTALL_DIR=/usr/local/bin USE_SUDO=false bash
 
     # quarto 설치
-ENV QUARTO_VERSION="1.9.37"
+ENV QUARTO_VERSION="1.9.38"
 RUN \
   if [ "$TARGETARCH" = "amd64" ]; then \
     QUARTO_ARCH="amd64"; \
@@ -187,7 +187,7 @@ WORKDIR ${HOME}
 USER ${USER}
 
 # Miniforge 설치
-ENV MINIFORGE_VERSION="26.1.1-3"
+ENV MINIFORGE_VERSION="26.3.2-2"
 ENV MINIFORGE_INSTALL_DIR="${HOME}/miniforge3"
 RUN \
   if [ "$TARGETARCH" = "amd64" ]; then \
@@ -261,10 +261,11 @@ RUN python -m bash_kernel.install
 # nvm 및 Node.js LTS 설치
 ENV NVM_DIR="${HOME}/.nvm"
 ENV NVM_VERSION="v0.40.4"
+ENV NODE_VERSION="v24.16.0"
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash && \
   . "${NVM_DIR}/nvm.sh" && \
-  nvm install --lts && \
-  nvm alias default lts/* && \
+  nvm install "${NODE_VERSION}" && \
+  nvm alias default "${NODE_VERSION}" && \
   nvm cache clear
 
 # 사용자 설정 파일 복사
